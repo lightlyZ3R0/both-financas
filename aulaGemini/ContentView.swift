@@ -16,7 +16,9 @@ struct ContentView: View {
     @State var respostaIA: String = ""
     @State var taCarregando: Bool = false
     
-    func enviaMensagem() {
+    func enviaMensagem(texto: String) -> String {
+        var financas = "olá gemini, agora você irá atuar como um chatbot que auxilia pessoas leigas com suas dúvidas sobre o universo das finaças. Questões sobre outros assuntos devem sempre ser ignoradas. Por favor, não utilize sua formatacão de texto padrão. Aqui vai a minha dúvida: "
+        prompt = texto
         let promptUsuario = prompt
         prompt = ""
         taCarregando = true
@@ -24,19 +26,25 @@ struct ContentView: View {
         
         Task {
             do {
-                let resposta = try await model.generateContent(promptUsuario)
+                let resposta = try await model.generateContent("\(financas)\(promptUsuario)")
                 respostaIA = resposta.text ?? "Eu não sei..."
             } catch {
                 respostaIA = "Erro: \(error.localizedDescription)"
             }
             taCarregando = false
         }
+        
+        return respostaIA
     }
     
     var body: some View {
-        VStack {
+        ScrollView {
             TextField("Digite sua dúvida", text: $prompt)
-                .
+                .multilineTextAlignment(.center)
+                .onSubmit {
+                    respostaIA = enviaMensagem(texto: prompt)
+                }
+            Text(respostaIA)
         }
         .padding()
     }
